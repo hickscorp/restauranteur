@@ -1,0 +1,19 @@
+angular.module('Restauranteur.controllers').controller(
+  'DietsController', [
+    '$scope', '$state', 'Restangular', 'diets',
+    ($scope, $state, Restangular, diets) ->
+      $scope.diets          = diets
+
+      # Create diet action.
+      $scope.addDiet          = ->
+        diets.post( name: 'New Diet' ).then (diet) ->
+          $scope.diets.push diet
+          $state.go 'diets.show', { dietId: diet.id }
+
+      # Delete diet action.
+      $scope.deleteDiet = (diet) ->
+        diet.remove().then ->
+          $scope.diets.splice(idx, 1) if (idx=$scope.diets.indexOf(diet))>-1
+          $state.go 'diets'
+  ]
+)

@@ -1,0 +1,40 @@
+/ Legend
+.small-12.columns
+  %h4 #{ I18n.t 'diets.one.title' }
+
+/ Diet tabset.
+.small-12.columns
+  %tabset
+    / Basic data tab.
+    %tab{ heading: I18n.t('application.basic_data') }
+      %form
+        / Name.
+        .large-12.columns
+          %label #{ I18n.t 'application.name' }
+          %input{ type: :text, ng: { model: 'dietCopy.name', disabled: '!session.user.is("chef")' } }
+
+        / Actions.
+        .small-12.columns{ ng: { show: 'session.user.is("dietitian")' } }
+          %ul.right.round.button-group
+            %li
+              %button.fi-check.success.small{ ng: { click: 'saveDiet() '} }
+            %li
+              %a.fi-x.alert.small.button{ ng: { really: { click: 'deleteDiet(selection.diet)', message: 'Oh really?' } } }
+
+    / Courses tab.
+    %tab{ heading: I18n.t('courses.title') }
+      .small-12.columns
+        .row
+          .small-12.columns
+            %dl.sub-nav
+              %dd{ ng: { repeat: 'c in courses', class: '{ active: c.id==selection.course.id }' } }
+                %a{ ui: { sref: 'course({dietId:{{c.diet_id}}, courseId:{{c.id}}})' } }
+                  {{c.name}}
+              %dd
+                %a.fi-plus.tiny.round.success.button{ ng: { click: 'addCourse()', show: 'session.user.is("dietitian")' } }
+
+          / Course details
+          .small-12.columns
+            .row{ ui: { view: 'course' } }
+              .small-12.columns
+                %p #{ I18n.t 'courses.no_selection' }

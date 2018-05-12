@@ -1,0 +1,40 @@
+!!!
+%html
+
+  %head
+    %title=content_for?(:title) ? yield(:title) : 'Restauranteur'
+    %meta{ charset: 'utf-8' }
+    %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1.0' }
+    = stylesheet_link_tag       'application',  media: 'all'
+    = csrf_meta_tags
+
+  %body{ ng:{ app: 'Restauranteur', controller: 'ApplicationController' } }
+
+    -# =========================== #
+    -#        Actual Content
+    -# Header.
+    =render 'layouts/header'
+    -# Breadcrumbs.
+    .row
+      %breadcrumbs
+      %div{ ng: { show: 'hasPendingRequests()' } } ...
+
+    -# Application view.
+    %section#appView.row{ ui: { view: :application } }
+      -# This will be replaced by the template content.
+      .large-12.columns
+        %p #{ I18n.t 'application.loading' }
+
+    -# Footer.
+    =render 'layouts/footer'
+
+    -# =========================== #
+    -#        NG Templates
+    %script{ type: 'text/ng-template', id: 'application.tpl.html' }
+      / Main view content.
+      %div{ ui: { view: :main } }
+        = yield
+
+    -# =========================== #
+    -#        Javascripts
+    = javascript_include_tag   'application'

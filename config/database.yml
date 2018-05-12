@@ -1,0 +1,18 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 10
+
+development:
+  <<: *default
+  database: restauranteur_dev
+  template: template0
+
+test:
+  <<: *default
+  database: restauranteur_test
+  template: template0
+
+production:
+  <<: *default
+  database: restauranteur

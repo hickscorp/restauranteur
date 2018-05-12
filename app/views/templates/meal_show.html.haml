@@ -1,0 +1,47 @@
+/ Legend
+.small-12.columns
+  %h4 #{ I18n.t 'meals.one.title' }
+  .panel.callout{ ng: { if: 'warnings.length>0' } }
+    %b #{ I18n.t 'meals.one.problems_header' }
+    %ul
+      %li{ ng: { repeat: 'warning in warnings' } }
+        %em {{warning}}
+
+/ Meal tabset.
+.small-12.columns
+  %tabset
+    / Basic data tab.
+    %tab{ heading: "#{ I18n.t 'application.basic_data' }" }
+      %form
+        / Type.
+        .large-12.columns
+          %label #{ I18n.t 'meals.one.diet' }
+          %p {{diets.byId(mealCopy.diet_id).name}}
+        / Name.
+        .large-12.columns
+          %label #{ I18n.t 'application.name' }
+          %input{ type: :text, ng: { model: 'mealCopy.name', disabled: '!session.user.is("chef")' } }
+
+        / Actions.
+        .small-12.columns{ ng: { show: 'session.user.is("dietitian")' } }
+          %ul.right.round.button-group
+            %li
+              %button.fi-check.success.small{ ng: { click: 'saveMeal() '} }
+            %li
+              %a.fi-x.alert.small.button{ ng: { really: { click: 'deleteMeal(selection.meal)', message: 'Oh really?' } } }
+
+    / Plates tab.
+    %tab{ heading: "#{ I18n.t 'plates.title' }" }
+      .small-12.columns
+        .row
+          .small-12.columns
+            %dl.sub-nav
+              %dd{ ng: { repeat: 'p in plates', class: '{ active: p.id==selection.plate.id }' } }
+                %a{ ui: { sref: 'plate({mealId:{{p.meal_id}}, plateId:{{p.id}}})' } }
+                  {{p.name}}
+
+          / Plate details.
+          .small-12.columns
+            .row{ ui: { view: 'plate' } }
+              .small-12.columns
+                %p #{ I18n.t 'plates.no_selection' }

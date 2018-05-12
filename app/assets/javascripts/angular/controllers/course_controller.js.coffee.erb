@@ -1,0 +1,54 @@
+angular.module('Restauranteur.controllers').controller(
+  'CourseController', [
+    '$scope', 'Restangular', '$modal', 'course', 'constraints', ($scope, Restangular, $modal, course, constraints) ->
+      $scope.selection.course = course
+      $scope.courseCopy       = Restangular.copy course
+      $scope.constraints      = constraints
+
+      # Add / edit constraint action.
+      $scope.editConstraint  = (constraint) ->
+        $scope.stopWatchingHttp()
+        modalInstance   = $modal.open(
+          scope:          $scope
+          windowClass:    'medium'
+          templateUrl:    '/templates/constraint_edit.html'
+          resolve:
+            constraint:     -> constraint || Restangular.restangularizeElement $scope.courseCopy, { component_type_id: 0, minimum_value: 0, maximum_value: 100 }, 'constraints'
+            mode:           -> constraint && 'edition' || 'creation'
+          controller:       [
+            '$scope', '$modalInstance', 'Globals', 'mode', 'constraint',
+            ($scope, $modalInstance, Globals, mode, constraint) ->
+              $scope.mode           = mode
+              $scope.constraint     = Restangular.copy constraint
+              $scope.original       = constraint
+              $scope.g              = Globals
+
+              # Verify constraint validity.
+              $scope.isValid        = () -> $scope.constraint.component_type_id!=0 && $scope.constraint.minimum_value<=$scope.constraint.maximum_value
+              # Cancel creation / edition.
+              $scope.cancel         = -> $modalInstance.dismiss()
+              # Create or edit the constraint.
+              $scope.done           = ->
+                if $scope.mode=='creation'
+                  $scope.courseCopy.post('constraints', $scope.constraint)
+                    .then (obj) -> $scope.constraints.push obj
+                    .finally    -> $scope.resumeWatchingHttp()
+                else if $scope.mode=='edition'
+                  $scope.constraint.put()
+                    .then       -> angular.copy $scope.constraint, $scope.original
+                    .finally    -> $scope.resumeWatchingHttp()
+                $modalInstance.close()
+          ]
+        ).result.then ->
+
+      # Delete diet action.
+      $scope.deleteConstraint = (constraint) ->
+        constraint.remove().then ->
+          $scope.constraints.splice(idx, 1) if (idx=$scope.constraints.indexOf(constraint))>-1
+
+      # Save action.
+      $scope.saveCourse       = ->
+        $scope.courseCopy.put().then ->
+          angular.copy $scope.courseCopy, $scope.selection.course
+  ]
+)

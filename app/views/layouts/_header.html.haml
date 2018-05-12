@@ -1,0 +1,42 @@
+.not-fixed
+  / Navigation menu.
+  %nav.top-bar{ 'data-topbar' => true }
+    %ul.title-area
+      %li.name
+        %h1
+          %a{ ui: { sref:'root()' } } Restauranteur
+      %li
+        %spinner{ us: { spinner: 'routerSpinnerOptions' }, ng: { show: 'isAnythingLoading' } }
+
+      %li.toggle-topbar.menu-icon
+        %a Menu
+
+    %section.top-bar-section
+      %ul.right
+        %li{ ng: { class: '{active: $state.includes("home")}' } }
+          %a.fi-star{ ui: { sref: 'home' } }
+            #{ I18n.t 'home.title' }
+
+        / Diets
+        %li{ ng: { class: '{active: $state.includes("diets")}' } }
+          %a.fi-graph-bar{ ui: { sref: 'diets' } }
+            #{ I18n.t 'diets.title' }
+
+        / Meals
+        %li{ ng: { class: '{active: $state.includes("meals")}' } }
+          %a.fi-graph-pie{ ui: { sref: 'meals' } }
+            #{ I18n.t 'meals.title' }
+
+        / Sign-in / Register.
+        %li.has-form{ ng: { show: '!session.user' } }
+          %a.fi-at-sign.tiny.round.button{ ng:{ click: 'signinOrSignup()'} }
+            #{ I18n.t 'header.sign_in_or_up' }
+
+        / User profile / settings / etc.
+        %li.has-dropdown{ ng: { show: 'session.user' } }
+          %a.fi-torso
+            {{session.user.fullName() || '#{ I18n.t 'header.signed_out' }'}}
+          %ul.dropdown
+            %li
+              %a.fi-power{ ng:{ click: 'g.signout()' } }
+                #{ I18n.t 'header.sign_out' }

@@ -1,0 +1,27 @@
+%form
+  %fieldset
+    %legend #{ I18n.t 'ingredients.one.title' }
+
+    / Food.
+    .row
+      .small-4.columns
+        %label.inline.right Ingredient
+      .small-8.columns
+        %input.select{ type: :hidden, ui: { select2: 'foodListOptions' }, ng: { model: 'foodSelection.data' } }
+
+    / Quantity
+    .row
+      .small-4.columns
+        %label.inline.right Quantity
+      .small-8.columns
+        .row.collapse
+          .small-11.columns
+            %input{ type: :number, min: '0', ng: { model: 'ingredient.quantity', disabled: 'foodSelection.data.id==0' } }
+          .small-1.columns
+            %span.postfix g
+
+    / Actions.
+    .row
+      .small-push-4.small-8.columns
+        %button.fi-check.small.round.success{ ng: { click: 'done()', disabled: '!isValid()' } }
+        %a.fi-x.small.round.button{ ng: { click: 'cancel()' } }

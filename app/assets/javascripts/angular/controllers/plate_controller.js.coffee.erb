@@ -1,0 +1,144 @@
+angular.module('Restauranteur.controllers').controller(
+  'PlateController', [
+    '$scope', '$q', '$filter', 'Restangular', '$modal', 'course', 'constraints', 'plate', 'ingredients',
+    ($scope, $q, $filter, Restangular, $modal, course, constraints, plate, ingredients) ->
+      $scope.selection.plate      = plate
+      $scope.plateCopy            = Restangular.copy plate
+      $scope.ingredients          = ingredients
+
+      $scope.course               = course
+      $scope.constraints          = constraints
+      $scope.constraintsReview    = {}
+
+      # Add / edit ingredient action.
+      $scope.editIngredient  = (i) ->
+        $scope.stopWatchingHttp()
+        modalInstance = $modal.open(
+          scope:            $scope
+          windowClass:      'medium'
+          templateUrl:      '/templates/ingredient_edit.html'
+          resolve:
+            ingredient:     -> i || Restangular.restangularizeElement $scope.plateCopy, { food_id: 0, quantity: 0 }, 'ingredients'
+            mode:           -> i && 'edition' || 'creation'
+          controller:       [
+            '$scope', '$modalInstance', 'mode', 'ingredient',
+            ($scope, $modalInstance, mode, ingredient) ->
+              $scope.mode           = mode
+              $scope.ingredient     = Restangular.copy ($scope.original = ingredient)
+
+              # Select2 food list value store.
+              $scope.foodSelection  = { data: Restangular.one('foods', $scope.ingredient.food_id).get() }
+              # Verify ingredient validity, update ingredient food_id.
+              $scope.$watch 'foodSelection.data', (data) ->
+                $scope.ingredient.food_id     = data.id
+                $scope.ingredient.food_name   = data.name
+              # Select2 food list options.
+              $scope.foodListOptions  =
+                minimumInputLength:   1
+                formatSelection:      (i) -> i.name
+                formatResult:         (i) -> i.name
+                initSelection:        (elem, callback) ->
+                  $(elem).data('$ngModelController').$modelValue.then (obj) ->
+                    callback obj
+                query:                (q) ->
+                  Restangular.withConfig( (configurer) -> configurer.setFullResponse true )
+                    .all('foods').getList({
+                      limit:                50,
+                      offset:               (q.page-1)*50,
+                      filters:              { name: q.term }
+                    }).then (resp) ->
+                      q.callback
+                        results:              resp.data
+                        more:                 (+resp.headers('queryOffset')) + (+resp.headers('queryLimit')) < +resp.headers('queryTotal')
+                    , -> console.log 'Failed to query server with object list.'
+
+              # Verify ingredient validity.
+              $scope.isValid        = -> $scope.ingredient.food_id!=0 && $scope.ingredient.quantity>0
+              # Cancel creation / edition.
+              $scope.cancel         = -> $modalInstance.dismiss()
+              # Create or edit the ingredient.
+              $scope.done           = ->
+                if $scope.mode=='creation'
+                  $scope.plateCopy.post('ingredients', $scope.ingredient)
+                    .then (obj) -> $scope.ingredients.push obj
+                    .finally    -> $scope.resumeWatchingHttp()
+                else if $scope.mode=='edition'
+                  $scope.ingredient.put()
+                    .then       -> angular.copy $scope.ingredient, $scope.original
+                    .finally    -> $scope.resumeWatchingHttp()
+                $modalInstance.close()
+          ]
+        )
+
+      # Delete ingredient action.
+      $scope.deleteIngredient = (ingredient) ->
+        ingredient.remove().then ->
+          $scope.ingredients.splice(idx, 1) if (idx=$scope.ingredients.indexOf(ingredient))>-1
+          $scope.updateFacts()
+
+      # Save action.
+      $scope.savePlate       = ->
+        $scope.plateCopy.put().then ->
+          angular.copy $scope.plateCopy, $scope.selection.plate
+
+      # When ingredients change, update facts.
+      $scope.$watch 'ingredients', ->
+        $scope.updateFacts()
+      , true
+      # Nutrition facts updater function.
+      $scope.updateFacts      = ->
+        $scope.nutritionFacts   = null
+        return unless $scope.ingredients.length
+        $scope.ingredients.nutritionFacts().then (facts) ->
+          $scope.nutritionFacts = facts
+
+          # Update constraints review.
+          for constraint in $scope.constraints
+            quantity            = facts[cId=constraint.component_type_id]
+            roundedQuantity     = quantity.toFixed 2
+            componentType       = $scope.g.cache.componentTypesIdized[cId]
+            $scope.constraintsReview[cId] = review = {
+              name:               componentType.name
+              status:             '✘'
+              message:            ''
+              quantity:           roundedQuantity
+              minimum_value:      min=constraint.minimum_value
+              maximum_value:      max=constraint.maximum_value
+              unit:               componentType.unit
+              class:              'alert'
+            }
+            if quantity<min
+              review.message      = "<%= I18n.t 'plates.one.warnings.too_few' %>"
+            else if max>0 && quantity>max
+              review.message      = "<%= I18n.t 'plates.one.warnings.too_much' %>"
+            else
+              review.status       = '✓'
+              review.message      = "<%= I18n.t 'plates.one.warnings.fine' %>"
+              review.class        = 'success'
+        $scope.graphs.CbI.refresh()
+
+      # Graphs properties.
+      $scope.graphs               =
+        CbI:
+          cId:                      constraints.length && constraints[0].component_type_id || 1
+          data:                     []
+          refresh:                  ->
+            v                         = $scope.graphs.CbI.cId
+            return $scope.graphs.CbI.data = [] unless v
+            # Prepare ingredient processing function.
+            $q.all(
+              ( (i) ->
+                Restangular.one('foods', i.food_id).components().then (components) ->
+                  quantity        = i.quantity / 100.0
+                  $scope.graphs.CbI.loaded++
+                  for component in components
+                    if component.component_type_id==v
+                      return { name: i.food_name, value: quantity*component.value }
+              )(i) for i in $scope.ingredients
+            ).then (rows) ->
+              $scope.graphs.CbI.data = rows
+            v
+          labelFunc:                -> (e) -> e.name
+          valueFunc:                -> (e) -> e.value
+  ]
+)

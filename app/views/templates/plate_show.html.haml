@@ -1,0 +1,98 @@
+/ Legend
+.small-12.columns
+  %h4 #{ I18n.t 'plates.one.title' }
+
+/ Plate tabset.
+.small-12.columns
+  %tabset
+    / Basic data.
+    %tab{ heading: I18n.t('application.basic_data') }
+      %form
+        / Type.
+        .large-12.columns
+          %label #{ I18n.t 'application.type' }
+          %p {{plateCopy.type().name}}
+        / Name.
+        .large-12.columns
+          %label #{ I18n.t 'application.name' }
+          %input{ type: :text, ng: { model: 'plateCopy.name', disabled: '!session.user.is("chef")' } }
+        / Actions.
+        .small-12.columns{ ng: { show: 'session.user.is("chef")' } }
+          %ul.right.round.button-group
+            %li
+              %button.fi-check.small.success{ ng: { click: 'savePlate() '} }
+
+    / Ingredients tab.
+    %tab{ heading: I18n.t('ingredients.title') }
+      / Constraint ranges.
+      .small-12.columns{ ng: { if: 'ingredients.length' } }
+        %table
+          / Header.
+          %tbody
+            %thead
+              %tr
+                %td{ width: '70%' } #{ I18n.t 'ingredients.component' }
+                %td{ width: '30%' } #{ I18n.t 'ingredients.status' }
+
+            / Constraints.
+            %tr{ ng: { repeat: 'review in constraintsReview' } }
+              %td{ ng: { class: 'review.class' } } {{review.name}}
+              %td{ ng: { class: 'review.class' } }
+                .status-indicator{ popover: '{{review.message}}', 'popover-trigger'=>'mouseenter', 'popover-placement'=>'left' }
+                  {{review.status}} {{review.quantity}} {{review.unit}}
+                  .range
+                    #{ I18n.t 'ingredients.range_message' }
+      / Ingredients.
+      .small-12.columns
+        %table
+          %tbody
+            / Header.
+            %tr
+              %th #{ I18n.t 'ingredients.ingredient' }
+              %th #{ I18n.t 'application.qty' }
+              %th
+                %a.fi-plus.tiny.round.success.button.right{ ng: { click: 'editIngredient()', show: 'session.user.is("chef")' } }
+            / Ingredients repeater.
+            %tr{ ng: { repeat: 'c in ingredients' } }
+              %td {{c.food_name }}
+              %td {{c.quantity}} g
+              %td
+                %ul.right.round.button-group{ ng: { show: 'session.user.is("chef")' } }
+                  %li
+                    %a.fi-pencil.tiny.button{ ng: { click: 'editIngredient(c)' } }
+                  %li
+                    %a.fi-x.alert.tiny.button{ ng: { really: { click: 'deleteIngredient(c)', message: 'Oh really?' } } }
+            / Total Footer.
+            %tr
+              %td #{ I18n.t 'application.total' }
+              %td {{ingredients.totalQuantity()}} g
+              %td
+
+    / Graphics tab.
+    %tab{ heading: I18n.t('plates.one.graphs_tab.title'), ng: { if: 'ingredients.length' } }
+      .small-12.columns
+        -# Was: %select{ ng: { model: 'graphs.CbI.cId', options: 't.id as t.name for t in g.cache.componentTypes' } }
+        %select{ ng: { change: 'graphs.CbI.refresh()', model: 'graphs.CbI.cId', options: 'c.component_type_id as g.cache.componentTypesIdized[c.component_type_id].name for c in constraints' } }
+      .small-12.columns
+        %nvd3-pie-chart{ data: 'graphs.CbI.data', height: '550', showlabels: 'false', showLegend: 'true', width: '550', tooltips: 'true', x: 'graphs.CbI.labelFunc()', y: 'graphs.CbI.valueFunc()' }
+          %svg
+
+    / Nutrition facts tab.
+    %tab{ heading: I18n.t('plates.one.facts_tab.title'), ng: { if: 'ingredients.length' } }
+      .small-12.columns
+        %p{ ng: { if: '!nutritionFacts' } }
+          #{ I18n.t 'plates.one.facts_tab.updating' }
+        %table{ ng: { if: 'nutritionFacts' } }
+          %tbody
+            / Header.
+            %thead
+              %tr
+                %td #{ I18n.t 'ingredients.component' }
+                %td #{ I18n.t 'application.qty' }
+            / Body
+            %tr{ ng: { repeat: '(tId, quantity) in nutritionFacts' } }
+              %td {{g.cache.componentTypesIdized[tId].name}}
+              %td {{quantity | number:2}} {{g.cache.componentTypesIdized[tId].unit}}
+
+        %p{ ng: { if: '!nutritionFacts' } }
+          #{ I18n.t 'plates.one.facts_tab.empty' }

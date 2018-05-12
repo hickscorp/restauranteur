@@ -1,0 +1,11 @@
+angular.module('Restauranteur.controllers').controller(
+  'PlatesController', [
+    '$scope', '$state',
+    ($scope, $state) ->
+      $scope.plate = $scope.selection.plate
+
+      $scope.validatePlates = ->
+        console.log 'Changed!'
+      $scope.$watch 'plates.length', $scope.validatePlates
+  ]
+)

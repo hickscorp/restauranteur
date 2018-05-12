@@ -1,0 +1,87 @@
+angular.module('Restauranteur.controllers').controller(
+  'ApplicationController', [
+    '$scope', '$http', '$modal', 'Globals', ($scope, $http, $modal, Globals) ->
+      # Make the Globals service accessible through the global 'g' variable.
+      $scope.g                    = Globals
+      $scope.session              = $scope.g.session
+      $scope.selection            = $scope.g.selection
+
+      # Other handles.
+      $scope.http                 = $http
+      $scope.loading              = router: false, http: false
+      # Spinner options.
+      $scope.routerSpinnerOptions = color: '#eee', lines: 13, length: 4, width: 2, radius: 6, corners: 1.0, trail: 50, shadow: true, hwaccel: true
+      # Router loading flag.
+      $scope.loading.router       = false
+      # Watch for state change start.
+      $scope.$on '$stateChangeStart', (event, toState, toParams, fromState, fromParams) ->
+        $scope.loading.router     = true
+        $scope.updateLoadingState()
+      # Watch for state change success.
+      $scope.$on '$stateChangeSuccess', (event, toState, toParams, fromState, fromParams) ->
+        $scope.loading.router     = false
+        $scope.selection.diet     = null  unless $scope.$state.includes 'diets.show'
+        $scope.selection.course   = null  unless $scope.$state.includes 'course'
+        $scope.selection.meal     = null  unless $scope.$state.includes 'meals.show'
+        $scope.selection.plate    = null  unless $scope.$state.includes 'plate'
+        $scope.updateLoadingState()
+      # Watch for state change errors.
+      $scope.$on '$stateChangeError', (event, toState, toParams, fromState, fromParams, error) ->
+        $scope.loading.router     = false
+        $scope.updateLoadingState()
+        console.log "Unable to complete request.", error
+
+      # Watch HTTP flag and setters.
+      $scope.watchHttp            = true
+      $scope.stopWatchingHttp     = -> $scope.watchHttp = false
+      $scope.resumeWatchingHttp   = -> $scope.watchHttp = true
+      $scope.updateLoadingState   = ->
+        if $scope.isAnythingLoading != $scope.loading.router || $scope.loading.http
+          $scope.isAnythingLoading = $scope.loading.router || ($scope.watchHttp && $scope.loading.http)
+          if $scope.isAnythingLoading
+            $('#appView').mask("<%= I18n.t 'application.please_wait' %>")
+          else
+            $('#appView').unmask()
+
+      # --------------------
+      # Session Management.
+      $scope.credentials    =
+        email:                ''
+        password:             ''
+      # Show identification dialog
+      $scope.signinOrSignup = ->
+        $scope.stopWatchingHttp()
+        modalInstance = $modal.open(
+          scope:            $scope
+          windowClass:      'medium'
+          templateUrl:      '/templates/authentication.html'
+          controller:       [
+            '$scope', '$modalInstance',
+            ($scope, $modalInstance) ->
+              $scope.processing = false
+              $scope.message    = "<%= I18n.t 'authentication.messages.input_credentials' %>"
+              # Called by the SignIn button.
+              $scope.login      = ->
+                $scope.message    = "<%= I18n.t 'authentication.messages.in_progress' %>"
+                $scope.processing = true
+                Globals.signin($scope.credentials)
+                  .then( ->
+                    $scope.message              = "<%= I18n.t 'authentication.messages.success' %>"
+                    $scope.credentials.email    = ''
+                    $modalInstance.close()
+                  ).catch( (err) ->
+                    $scope.message              = "<%= I18n.t 'authentication.messages.failure' %>"
+                  ).finally( ->
+                    $scope.processing           = false
+                    $scope.credentials.password = ''
+                    $scope.resumeWatchingHttp()
+                  )
+
+              # Called by the Cancel button.
+              $scope.cancel       = -> $modalInstance.dismiss()
+          ]
+        )
+      # Load the session
+      Globals.signin()
+  ]
+)

@@ -1,0 +1,27 @@
+angular.module('Restauranteur.controllers').controller(
+  'DietController', [
+    '$scope', '$state', 'Restangular', 'diet', 'courses',
+    ($scope, $state, Restangular, diet, courses) ->
+      # Store selection, and copy it for edition.
+      $scope.dietCopy         = Restangular.copy $scope.selection.diet = diet
+      # Cache diet's courses and selected course.
+      $scope.courses        = courses
+
+      # Create course action.
+      $scope.addCourse        = ->
+        $scope.courses.post( name: "<%= I18n.t 'courses.new.title' %>", diet_id: $scope.dietCopy.id ).then (course) ->
+          $scope.courses.push course
+          $state.go 'course', { dietId: course.diet_id, courseId: course.id }
+
+      # Delete course action.
+      $scope.deleteCourse = (course) ->
+        course.remove().then ->
+          $scope.courses.splice(idx, 1) if (idx=$scope.courses.indexOf(course))>-1
+          $state.go 'diets.show', course.diet_id
+
+      # Save action.
+      $scope.saveDiet         = ->
+        $scope.dietCopy.put().then ->
+          angular.copy $scope.dietCopy, $scope.selection.diet
+  ]
+)

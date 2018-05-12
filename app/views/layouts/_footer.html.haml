@@ -1,0 +1,26 @@
+.footer
+  .row
+    .large-12.columns
+      .row
+        %small.large-4.columns
+          %p
+            %small #{ I18n.t 'footer.copyrights' }
+        .large-8.columns
+          %ul.inline-list.right
+            %li
+              %small #{ I18n.t 'footer.built_with' }
+            %li
+              %small
+                %a{href: 'http://rubyonrails.org' } Ruby on Rails
+            %li
+              %small
+                %a{href: 'http://angularjs.org' } AngularJS
+            %li
+              %small
+                %a{href: 'http://foundation.zurb.com' } Zurb Foundation
+
+  / State / State Params Debugging.
+  .row
+    %small.small-12.columns $state = {{$state.current.name}}
+    %small.small-12.columns $stateParams = {{$stateParams}}
+    %small.small-12.columns $state.$current.url.source = {{ $state.$current.url.source }}

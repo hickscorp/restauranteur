@@ -1,0 +1,39 @@
+angular.module('Restauranteur.controllers').controller(
+  'MealController', [
+    '$scope', '$state', '$q', 'Restangular', 'diets', 'meal', 'courses', 'plates',
+    ($scope, $state, $q, Restangular, diets, meal, courses, plates) ->
+      # Store cached diets and courses.
+      $scope.diets            = diets
+      $scope.courses          = courses
+      # Store selection, and copy it for editing.
+      $scope.mealCopy         = Restangular.copy $scope.selection.meal = meal
+      # Cache meal's plates and selected plate.
+      $scope.plates           = plates
+      $scope.plate            = $scope.selection.plate
+      # Cache meal diet.
+      $scope.diet             = $scope.diets.byId($scope.mealCopy.diet_id)
+      
+      $scope.validate         = ->
+        # Reset warning messages array.
+        $scope.warnings         = []
+        if $scope.plates.length>courses.length
+          $scope.warnings.push  'This meal contains too many plates.'
+        else if $scope.plates.length<courses.length
+          $scope.warnings.push  'This meal contains too few plates.'
+
+        # Store course types for associated diet.
+        courseTypes           = (course.course_type_id for course in courses).sort()
+        # Store course types for all plates.
+        plateTypes            = (plate.course_type_id for plate in $scope.plates).sort()
+        # Compare one to one association.
+        unless courseTypes.join(':')==plateTypes.join(':')
+          $scope.warnings.push  'Some of the plate types don\'t match with the diet required types.'
+
+      $scope.$watch 'plates', $scope.validate, true
+
+      # Save action.
+      $scope.saveMeal         = ->
+        $scope.mealCopy.put().then ->
+          angular.copy $scope.mealCopy, $scope.selection.meal
+  ]
+)

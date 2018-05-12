@@ -1,0 +1,56 @@
+/ Legend
+.small-12.columns
+  %h4 #{ I18n.t 'courses.one.title' }
+
+/ Course tabset.
+.small-12.columns
+  %tabset
+    / Basic data tab.
+    %tab{ heading: I18n.t('application.basic_data') }
+      %form
+        / Name.
+        .large-12.columns
+          %label #{ I18n.t 'application.name' }
+          %input{ type: :text, ng: { model: 'courseCopy.name', disabled: '!session.user.is("dietitian")' } }
+        / Type.
+        .large-12.columns
+          %label #{ I18n.t 'application.type' }
+          %select{ ng: { model: 'courseCopy.course_type_id', disabled: '!session.user.is("dietitian")', options: 't.id as t.name for t in g.cache.courseTypes' } }
+        / Actions.
+        .small-12.columns{ ng: { show: 'session.user.is("dietitian")' } }
+          %ul.right.round.button-group
+            %li
+              %button.fi-check.success.small{ ng: { click: 'saveCourse() '} }
+            %li
+              %a.fi-x.alert.small.button{ ng: { really: { click: 'deleteCourse(selection.course)', message: 'Oh really?' } } }
+
+    / Constraints tab.
+    %tab{ heading: I18n.t('constraints.title') }
+      %table
+        .small-12.columns
+          / Headers.
+          %thead
+            %tr
+              %th #{ I18n.t 'application.name' }
+              %th #{ I18n.t 'application.min' }
+              %th #{ I18n.t 'application.max' }
+              %th
+                %a.fi-plus.tiny.round.success.button.right{ ng: { click: 'editConstraint()', show: 'session.user.is("dietitian")' } }
+          / Constraints repeater.
+          %tbody
+            %tr{ ng: { repeat: 'c in constraints' } }
+              %td {{c.type().name }}
+              %td {{c.minimum_value}} {{c.type().unit}}
+              %td {{c.maximum_value}} {{c.type().unit}}
+              %td
+                %ul.round.button-group.right{ ng: { show: 'session.user.is("dietitian")' } }
+                  %li
+                    %a.fi-pencil.tiny.button{ ng: { click: 'editConstraint(c)' } }
+                  %li
+                    %a.fi-x.alert.tiny.button{ ng: { really: { click: 'deleteConstraint(c)', message: 'Oh really?' } } }
+            / Total.
+            %tr
+              %td #{ I18n.t 'application.total' }
+              %td #{ I18n.t 'constraints.sum_message' }
+              %td
+              %td

@@ -1,0 +1,97 @@
+en:
+  application:
+    loading:              "The application is loading, while this occurs, your interraction is temporarilly blocked."
+    please_wait:          "Please wait..."
+    submit:               "Submit"
+    cancel:               "Cancel"
+    min:                  "Min."
+    max:                  "Max."
+    min_max_range:        "Min. / Max. Range"
+    qty:                  "Qty."
+    total:                "Total"
+    basic_data:           "Basic Data"
+    name:                 "Name"
+    type:                 "Type"
+
+  header:
+    sign_in_or_up:        "Sign-in / up"
+    sign_out:             "Sign Out"
+    signed_out:           "Signed Out"
+
+  footer:
+    copyrights:           "Copyright © Pierre qui Roule EURL 2011. All rights reserved."
+    built_with:           "Built with...."
+
+  home:
+    title:                "Welcome"
+    paragraph1:           "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    paragraph2:           "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    paragraph3:           "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+
+  authentication:
+    title:                "Login"
+    legend:               "Authentication"
+    email:                "Email"
+    email_placeholder:    "Someone@Somewhere.com"
+    password:             "Password"
+    password_placeholder: "Secret"
+    messages:
+      input_credentials:  "Please enter your credentials below."
+      in_progress:        "Authenting, please wait..."
+      success:            "Authentication successfull, now loading..."
+      failure:            "Authentication error: #{err.statusText}."
+
+  diets:
+    title:                "Diets"
+    no_selection:         "Please select a diet to edit it."
+    one:
+      title:              "Details for diet {{selection.diet.name}}"
+
+  courses:
+    title:                "Courses"
+    no_selection:         "Please select a course to edit it."
+    new:
+      title:              "New Course"
+    one:
+      title:              "Details for course {{selection.course.name}}"
+
+  constraints:
+    title:                "Constraints"
+    sum_message:          "{{constraints.length}} constraint(s)"
+    one:
+      title:              "{{mode=='creation' && 'New' || 'Edit'}} Constraint"
+
+  meals:
+    title:                "Meals"
+    no_selection:         "Please select a meal to edit it."
+    new:
+      title:              "New Meal"
+    one:
+      title:              "Details for meal {{selection.meal.name}}"
+      problems_header:    "The following problem(s) have been detected for this meal:"
+      diet:               "Diet"
+
+  plates:
+    title:                "Plates"
+    no_selection:         "Please select a plate to edit it."
+    one:
+      title:              "Details for plate {{selection.plate.name}}"
+      warnings:
+        too_few:          "There has to be a minimum of #{min} #{review.unit} of #{review.name} but #{roundedQuantity} #{review.unit} is actually present in this plate. There is too few!"
+        too_much:         "There has to be a maximum of #{max} #{review.unit} of #{review.name} but #{roundedQuantity} #{review.unit} is actually present in this plate. That's too much!"
+        fine:             "The dish is compliant with this constraint."
+      graphs_tab:
+        title:            "Graphics"
+      facts_tab:
+        title:            "Nutrition Facts"
+        updating:         "Please wait while nutrition facts are being computed..."
+        empty:            "Add ingredients to this plate to get it's detailed nutrition facts."
+
+  ingredients:
+    title:                "Ingredients"
+    range_message:        "{{review.minimum_value}} to {{review.maximum_value}}"
+    ingredient:           "Ingredient"
+    component:            "Component"
+    status:               "Status"
+    one:
+      title:              "{{mode=='creation' && 'New' || 'Edit'}} Ingredient"

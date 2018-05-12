@@ -1,0 +1,197 @@
+angular.module('Restauranteur', [
+  'Restauranteur.controllers',
+  'Restauranteur.services',
+  'Restauranteur.factories',
+  'Restauranteur.directives',
+  'Restauranteur.filters',
+  'restangular',
+  'ui.router',
+  'ui.select2',
+  'angularSpinner',
+  'rzModule',
+  'nvd3ChartDirectives',
+  'mm.foundation'
+]).run(
+  [
+    '$rootScope', '$state', '$stateParams', ($rootScope, $state, $stateParams) ->
+      [ $rootScope.$state, $rootScope.$stateParams ]  = [ $state, $stateParams ]
+      $(document).foundation()
+  ]
+)
+
+angular.module 'Restauranteur.filters',       []
+angular.module 'Restauranteur.directives',    []
+angular.module 'Restauranteur.services',      []
+angular.module 'Restauranteur.factories',     []
+angular.module 'Restauranteur.controllers',   [ 'Restauranteur.services', 'Restauranteur.factories' ]
+
+angular.module('Restauranteur').config(
+  [
+    '$httpProvider', '$stateProvider', '$urlRouterProvider', '$locationProvider', 'RestangularProvider',
+    ($httpProvider, $stateProvider, $urlRouterProvider, $locationProvider, RestangularProvider) ->
+      # Solve the CSRF token issue with angular.
+      $httpProvider.defaults.headers.common['X-CSRF-Token'] = angular.element('meta[name=csrf-token]').attr 'content'
+
+      # Use URL bar instead of hash system for location.
+      $locationProvider.html5Mode           true
+
+      # Configure Restangular.
+      RestangularProvider.setBaseUrl        '/api'
+      RestangularProvider.setRequestSuffix  '.json'
+
+      # Default route.
+      $urlRouterProvider.otherwise          '/home'
+
+      # Routing.
+      $stateProvider
+        # Root
+        .state        'root',
+          abstract:     true
+          url:          '/'
+          resolve:
+            prefetch:     [
+              '$q', 'Globals', ($q, Globals) ->
+                Globals.restangulizeModels(Globals)
+                Globals.prefetchRequirements()
+            ]
+          views:
+            application:
+              templateUrl:  'application.tpl.html'
+
+        # Root > Home
+        .state        'home',
+          parent:     'root'
+          url:        'home'
+          data:
+            crumb:        'Home'
+          views:
+            main:
+              templateUrl:  '/templates/static_home.html'
+
+        # Diets
+        .state        'diets',
+          url:          'diets'
+          parent:       'root'
+          data:
+            crumb:        "<%= I18n.t 'diets.title' %>"
+          resolve:
+            diets:            [
+              'Globals', (Globals) -> Globals.prefetch 'diets'
+            ]
+          views:
+            main:
+              controller:   'DietsController'
+              templateUrl:  '/templates/diets.html'
+        # Diets > Details
+        .state        'diets.show',
+          url:          '/{dietId:[0-9]{1,9}}'
+          data:
+            crumb:        '{{diet.name}}'
+          resolve:
+            diet:             [
+              '$stateParams', '$q', 'diets', ($stateParams, $q, diets) ->
+                diets.byId(id=$stateParams.dietId) || $q.reject "Unable to find diet with id #{id}."
+            ]
+            courses:          [
+              'diet', (diet) ->
+                diet.courses()
+            ]
+          views:
+            diet:
+              controller:   'DietController'
+              templateUrl:  '/templates/diet_show.html'
+        # Course.
+        .state        'course',
+          parent:       'diets.show'
+          url:          '/courses/{courseId:[0-9]{1,9}}'
+          data:
+            crumb:        '{{course.name}}'
+          resolve:
+            course:           [
+              '$stateParams', '$q', 'courses',
+              ($stateParams, $q, courses) ->
+                courses.byId(id=$stateParams.courseId) || $q.reject "Unable to find course with id #{id}."
+            ]
+            constraints:      [
+              'course', (course) ->
+                course.constraints()
+            ]
+          views:
+            course:
+              templateUrl:  '/templates/course_show.html'
+              controller:   'CourseController'
+
+        # Meals
+        .state        'meals',
+          url:          'meals'
+          parent:       'root'
+          data:
+            crumb:        "<%= I18n.t 'meals.title' %>"
+          resolve:
+            meals:            [
+              'Globals', (Globals) ->
+                Globals.prefetch 'meals'
+            ]
+            diets:            [
+              'Globals', (Globals) ->
+                Globals.prefetch 'diets'
+            ]
+          views:
+            main:
+              controller:   'MealsController'
+              templateUrl:  '/templates/meals.html'
+        # Meals > Details
+        .state        'meals.show',
+          url:          '/{mealId:[0-9]{1,9}}'
+          data:
+            crumb:        '{{meal.name}}'
+          resolve:
+            meal:             [
+              '$stateParams', '$q', 'meals', ($stateParams, $q, meals) ->
+                meals.byId(id=$stateParams.mealId) || $q.reject "Unable to find meal with id #{id}."
+            ]
+            plates:           [
+              'meal', (meal) ->
+                meal.all('plates').getList()
+            ]
+            diet:             [
+              'diets', 'meal', (diets, meal) ->
+                diets.byId(id=meal.diet_id) || $q.reject "Unable to find diet with id #{id}."
+            ]
+            courses:          [
+              'diet', (diet) ->
+                diet.courses()
+            ]
+          views:
+            meal:
+              controller:   'MealController'
+              templateUrl:  '/templates/meal_show.html'
+        # Plate.
+        .state        'plate',
+          parent:       'meals.show'
+          url:          '/plates/{plateId:[0-9]{1,9}}'
+          data:
+            crumb:        '{{plate.name}}'
+          resolve:
+            plate:            [
+              '$stateParams', '$q', 'plates', ($stateParams, $q, plates) ->
+                plates.byId(id=$stateParams.plateId) || $q.reject "Unable to find plate with id #{id}."
+            ]
+            ingredients:      [
+              'plate', (plate) ->
+                plate.ingredients()
+            ]
+            course:           [
+              '$filter', 'courses', 'plate', ($filter, courses, plate) ->
+                courses.byId(id=plate.course_id) || $q.reject "Unable to find course with id #{id}."
+            ]
+            constraints:      [
+              'course', (course) ->
+                course.constraints()
+            ]
+          views:
+            plate:
+              templateUrl:  '/templates/plate_show.html'
+              controller:   'PlateController'
+  ]
+)

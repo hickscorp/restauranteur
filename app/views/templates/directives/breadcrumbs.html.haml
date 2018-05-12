@@ -1,0 +1,3 @@
+%ul.breadcrumbs
+  %li{ ng: { repeat: 'c in breadcrumbs', class: '{ unavailable: $last }' } }
+    %a{ ui: { sref: '{{c.route}}' } } {{c.title}}

@@ -1,0 +1,25 @@
+angular.module('Restauranteur.directives').directive(
+  'breadcrumbs', [
+    '$interpolate', '$state',
+    ($interpolate, $state) ->
+      restrict:     'E'
+      templateUrl:  '/templates/directives/breadcrumbs.html'
+      link:         (scope) ->
+        updateBreadcrumbsArray = ->
+          scope.breadcrumbs = []
+          state             = $state.$current
+
+          while state && state.name.length>0
+            if (title = getDisplayName state)
+              scope.breadcrumbs.unshift title: title, route: state.name
+            state             = state.parent
+
+        getDisplayName      = (state) ->
+          if !state.abstract && state && state.data && state.data.crumb
+            return $interpolate(state.data.crumb)(state.locals.globals)
+          return false
+
+        scope.breadcrumbs   = []
+        scope.$on '$stateChangeSuccess', updateBreadcrumbsArray
+  ]
+)

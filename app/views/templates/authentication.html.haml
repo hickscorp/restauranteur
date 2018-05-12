@@ -1,0 +1,31 @@
+.row
+  %h3
+    #{ I18n.t 'authentication.title' }
+  %form{ name: 'Authentication', ng:{ submit: 'login()', disabled: 'processing' } }
+    %fieldset{ ng:{ disabled: 'processing || user' } }
+      %legend
+        #{ I18n.t 'authentication.legend'}
+      .row
+        .small-12.columns
+          %p {{message}}
+
+      .row
+        .small-5.columns
+          %label.inline.right{ for: :email }
+            #{ I18n.t 'authentication.email' }
+        .small-7.columns
+          %input#email{ name: :email, type: :text, placeholder: I18n.t('authentication.email_placeholder'), ng:{ model: 'credentials.email' } }/
+
+      .row
+        .small-5.columns
+          %label.inline.right{ for: :password }
+            #{ I18n.t 'authentication.password' }
+        .small-7.columns
+          %input#password{ name: :password, type: :password, placeholder: I18n.t('authentication.password_placeholder'), ng:{ model: 'credentials.password' } }/
+
+      .row
+        .push-5.small-7.columns
+          %button.fi-check.round.success.small{ ng:{ disabled: 'processing' } }
+            #{ I18n.t 'application.submit' }
+          %a.fi-x.round.small.button{ value: 'Close', ng: { disabled: 'processing', click: 'cancel()' } }
+            #{ I18n.t 'application.cancel' }

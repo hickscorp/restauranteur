@@ -1,0 +1,44 @@
+/ Add constraint form.
+%form
+  %fieldset
+    %legend #{ I18n.t 'constraints.one.title' }
+
+    / Type.
+    .row
+      .small-4.columns
+        %label.inline.right #{ I18n.t 'application.type' }
+      .small-8.columns
+        %select{ ng: { model: 'constraint.component_type_id', options: 't.id as t.name for t in g.cache.componentTypes' } }
+
+    / Minimum and Maximum value.
+    .row{ ng: { if: 'constraint.component_type_id!=0' } }
+      .row
+        .small-4.columns
+          %label.inline.right #{ I18n.t 'application.min' }
+        .small-8.columns
+          .row.collapse
+            .small-11.columns
+              %input{ type: :number, min: 0, max: '{{constraint.maximum_value}}', ng: { model: 'constraint.minimum_value' } }
+            .small-1.columns
+              %span.postfix {{constraint.type().unit}}
+      .row
+        .small-4.columns
+          %label.inline.right #{ I18n.t 'application.max' }
+        .small-8.columns
+          .row.collapse
+            .small-11.columns
+              %input{ type: :number, min: '{{constraint.minimum_value}}', max: 1000, ng: { model: 'constraint.maximum_value' } }
+            .small-1.columns
+              %span.postfix {{constraint.type().unit}}
+      / Range slider.
+      .row
+        .small-4.columns
+          %label.inline.right #{ I18n.t 'application.min_max_range' }
+        .small-8.columns
+          %rzslider{ rz: { slider: { floor: 0, ceil: 1000, model: 'constraint.minimum_value', high: 'constraint.maximum_value' } } }
+
+    / Actions.
+    .row
+      .small-push-4.small-8.columns
+        %button.fi-check.small.round.success{ ng: { click: 'done()', disabled: '!isValid()' } }
+        %a.fi-x.round.small.button{ ng: { click: 'cancel()' } }

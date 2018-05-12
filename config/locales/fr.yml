@@ -1,0 +1,97 @@
+fr:
+  application:
+    loading:              "L'application est en cours de chargement, votre interraction est bloquée durant cette phase."
+    please_wait:          "Veuillez patienter..."
+    submit:               "Envoyer"
+    cancel:               "Annuler"
+    min:                  "Min."
+    max:                  "Max."
+    min_max_range:        "Plage Min. / Max."
+    qty:                  "Qté."
+    total:                "Total"
+    basic_data:           "Données de Base"
+    name:                 "Nom"
+    type:                 "Type"
+
+  header:
+    sign_in_or_up:        "S'identifier / S'enregistrer"
+    sign_out:             "Déconnexion"
+    signed_out:           "Déconnecté"
+
+  footer:
+    copyrights:           "Copyright © Pierre qui Roule EURL 2011. Tous droits réservés."
+    built_with:           "Éllaboré avec...."
+
+  home:
+    title:                "Bienvenue"
+    paragraph1:           "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    paragraph2:           "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    paragraph3:           "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+
+  authentication:
+    title:                "Identification"
+    legend:               "Authentification"
+    email:                "Email"
+    email_placeholder:    "Moi@Ici.com"
+    password:             "Mot de Passe"
+    password_placeholder: "Secret"
+    messages:
+      input_credentials:  "Veuillez entrer vos informations d'identification ci-dessous."
+      in_progress:        "Authentification en cours, veuillez patienter..."
+      success:            "Authentification accomplie, chargement en cours..."
+      failure:            "Echec de l'authentification: #{err.statusText}."
+
+  diets:
+    title:                "Régimes"
+    no_selection:         "Veuillez sélectionner un régime pour en obtenir le detail."
+    one:
+      title:              "Détails pour le régime {{selection.diet.name}}"
+
+  courses:
+    title:                "Plats"
+    no_selection:         "Veuillez sélectionner un plat pour en obtenir le detail."
+    new:
+      title:              "Nouveau Plat"
+    one:
+      title:              "Détails pour le plat {{selection.course.name}}"
+
+  constraints:
+    title:                "Contraintes"
+    sum_message:          "{{constraints.length}} contrainte(s)"
+    one:
+      title:              "{{mode=='creation' && 'Nouvelle' || 'Editer'}} Contrainte"
+
+  meals:
+    title:                "Repas"
+    no_selection:         "Veuillez sélectionner un repas pour en obtenir le détail."
+    new:
+      title:              "Nouveau Repas"
+    one:
+      title:              "Détails pour le repas {{selection.meal.name}}"
+      problems_header:    "The following problem(s) have been detected for this meal:"
+      diet:               "Régime"
+
+  plates:
+    title:                "Assiettes"
+    no_selection:         "Veuillez sélectionner une assiette pour en obtenir le détail."
+    one:
+      title:              "Détails pour l'assiette {{selection.plate.name}}"
+      warnings:
+        too_few:          "Il doit y avoir au minimum #{min} #{review.unit} de #{review.name} mais #{roundedQuantity} #{review.unit} est actuellement présent dans cette assiette. Il en manque!"
+        too_much:         "Il doit y avoir au maximum #{max} #{review.unit} de #{review.name} mais #{roundedQuantity} #{review.unit} est actuellement présent dans cette assiette. Il y en a trop!"
+        fine:             "L'assiette est en compliance avec cette contrainte."
+      graphs_tab:
+        title:            "Graphiques"
+      facts_tab:
+        title:            "Valeurs Nutritionnelles"
+        updating:         "Veuillez patienter pendant la mise à jour de la liste des nutriments..."
+        empty:            "Ajouter des ingrédients à cette assiette pour obtenir ses valeurs nutritionnelles complettes."
+
+  ingredients:
+    title:                "Ingrédients"
+    range_message:        "{{review.minimum_value}} à {{review.maximum_value}}"
+    ingredient:           "Ingrédient"
+    component:            "Composant"
+    status:               "Status"
+    one:
+      title:              "{{mode=='creation' && 'Nouvel' || 'Editer'}} Ingredient"
