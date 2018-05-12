@@ -1,38 +1,39 @@
 #encoding: utf-8
 
 puts 'Creating / Updating Users...'
-hickscorp = User.find_by_email(email='admin@gmail.com') || User.create({
+admin = User.find_by_email(email='admin@gmail.com') || User.create({
   email:                  email,
   first_name:             'Admin',
   last_name:              'ISTRATOR',
-  password:               'admin@gmail.com',
-  password_confirmation:  'admin@gmail.com',
+  password:               'Passw0rd',
+  password_confirmation:  'Passw0rd',
   roles:                  [ :administrator, :dietitian, :chef ]
 })
-jbc = User.find_by_email(email='dieteticien@gmail.com') || User.create({
-  email:                  email,
-  first_name:             'Diet',
-  last_name:              'TETICIEN',
-  password:               'dieteticien@gmail.com',
-  password_confirmation:  'dieteticien@gmail.com',
-  roles:                  [ :dietitian ]
-})
-sherault = User.find_by_email(email='chef@gmail.com') || User.create({
-  email:                  email,
-  first_name:             'Chef',
-  last_name:              'Chef',
-  password:               'chef@gmail.com',
-  password_confirmation:  'chef@gmail.com',
-  roles:                  [ :chef ]
-})
-jdoe = User.find_by_email(email='user@gmail.com') || User.create({
-  email:                  email,
-  first_name:             'User',
-  last_name:              'REGULAR',
-  password:               'user@gmail.com',
-  password_confirmation:  'user@gmail.com',
-  roles:                  []
-})
+
+User.bulk_insert(
+  values: [{
+    email:                  'diet@gmail.com',
+    first_name:             'Diet',
+    last_name:              'TETICIEN',
+    password:               'Passw0rd',
+    password_confirmation:  'Passw0rd',
+    roles:                  [ :dietitian ]
+  }, {
+    email:                  'chef@gmail.com',
+    first_name:             'Chef',
+    last_name:              'Chef',
+    password:               'Passw0rd',
+    password_confirmation:  'Passw0rd',
+    roles:                  [ :chef ]
+  }, {
+    email:                  'user@gmail.com',
+    first_name:             'User',
+    last_name:              'REGULAR',
+    password:               'Passw0rd',
+    password_confirmation:  'Passw0rd',
+    roles:                  []
+  }]
+)
 
 puts 'Creating / Updating Component Types...'
 sodium = ComponentType.find_by_code(code='10110') || ComponentType.create({
@@ -333,306 +334,256 @@ def clean_value_string (val)
 end
 
 unless Component.first
+  isz = 0;
   puts 'Creating Foods with their Components...'
   handler     = open "#{Rails.root}/db/CSV/CIQUAL_2013.csv"
   csv_string  = handler.read.encode! 'UTF-8', 'iso-8859-1', invalid: :replace
   CSV.parse csv_string, col_sep: ';', headers: true do |row|
     # Create this food.
+    if ((isz += 1) % 10 == 0)
+      puts "Creating ingredient #{isz}..."
+    end
+
     food = Food.create!({
       external_id:  row[2].to_i,
       name:         row[3].titleize
     })
-    # For this specific Food, create all Components.
-    Component.create!({
-      food:                 food,
-      component_type:       sodium,
-      value:                clean_value_string(row[4])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       magnesium,
-      value:                clean_value_string(row[5])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       phosphore,
-      value:                clean_value_string(row[6])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       potassium,
-      value:                clean_value_string(row[7])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       calcium,
-      value:                clean_value_string(row[8])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       manganese,
-      value:                clean_value_string(row[9])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       fer,
-      value:                clean_value_string(row[10])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       cuivre,
-      value:                clean_value_string(row[11])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       zinc,
-      value:                clean_value_string(row[12])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       selenium,
-      value:                clean_value_string(row[13])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       iode,
-      value:                clean_value_string(row[14])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       proteines,
-      value:                clean_value_string(row[15])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       proteines_brutes,
-      value:                clean_value_string(row[16])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       glucides,
-      value:                clean_value_string(row[17])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       sucres,
-      value:                clean_value_string(row[18])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       energie_kj,
-      value:                clean_value_string(row[19])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       energie_kcal,
-      value:                clean_value_string(row[20])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       amidon,
-      value:                clean_value_string(row[21])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       energie_dummy1,
-      value:                clean_value_string(row[22])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       energie_dummy2,
-      value:                clean_value_string(row[23])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       polyols,
-      value:                clean_value_string(row[24])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       fibres,
-      value:                clean_value_string(row[25])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       eau,
-      value:                clean_value_string(row[26])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       lipides,
-      value:                clean_value_string(row[27])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_satures,
-      value:                clean_value_string(row[28])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_monoinsatures,
-      value:                clean_value_string(row[29])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_polyinsatures,
-      value:                clean_value_string(row[30])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_butyrique,
-      value:                clean_value_string(row[31])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_caproique,
-      value:                clean_value_string(row[32])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_caprylique,
-      value:                clean_value_string(row[33])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_caprique,
-      value:                clean_value_string(row[34])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_laurique,
-      value:                clean_value_string(row[35])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_myristique,
-      value:                clean_value_string(row[36])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_palmitique,
-      value:                clean_value_string(row[37])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_stearique,
-      value:                clean_value_string(row[38])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_oleique,
-      value:                clean_value_string(row[39])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_linoleique,
-      value:                clean_value_string(row[40])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_alpha_linolenique,
-      value:                clean_value_string(row[41])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_arachidonique,
-      value:                clean_value_string(row[42])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_epa,
-      value:                clean_value_string(row[43])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_dha,
-      value:                clean_value_string(row[44])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_retinol,
-      value:                clean_value_string(row[45])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       ag_beta_carotene,
-      value:                clean_value_string(row[46])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       vitamine_d,
-      value:                clean_value_string(row[47])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       vitamine_e,
-      value:                clean_value_string(row[48])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       vitamine_k1,
-      value:                clean_value_string(row[49])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       vitamine_k2,
-      value:                clean_value_string(row[50])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       vitamine_c,
-      value:                clean_value_string(row[51])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       vitamine_b1,
-      value:                clean_value_string(row[52])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       vitamine_b2,
-      value:                clean_value_string(row[53])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       vitamine_b3,
-      value:                clean_value_string(row[54])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       vitamine_b5,
-      value:                clean_value_string(row[55])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       vitamine_b6,
-      value:                clean_value_string(row[56])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       vitamine_b12,
-      value:                clean_value_string(row[57])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       vitamine_b9,
-      value:                clean_value_string(row[58])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       alcool,
-      value:                clean_value_string(row[59])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       acides_organiques,
-      value:                clean_value_string(row[60])
-    })
-    Component.create!({
-      food:                 food,
-      component_type:       cholesterol,
-      value:                clean_value_string(row[61])
-    })
+
+    Component.bulk_insert(
+      values: [{
+        food:                 food,
+        component_type:       sodium,
+        value:                clean_value_string(row[4])
+      }, {
+        food:                 food,
+        component_type:       magnesium,
+        value:                clean_value_string(row[5])
+      }, {
+        food:                 food,
+        component_type:       phosphore,
+        value:                clean_value_string(row[6])
+      }, {
+        food:                 food,
+        component_type:       potassium,
+        value:                clean_value_string(row[7])
+      }, {
+        food:                 food,
+        component_type:       calcium,
+        value:                clean_value_string(row[8])
+      }, {
+        food:                 food,
+        component_type:       manganese,
+        value:                clean_value_string(row[9])
+      }, {
+        food:                 food,
+        component_type:       fer,
+        value:                clean_value_string(row[10])
+      }, {
+        food:                 food,
+        component_type:       cuivre,
+        value:                clean_value_string(row[11])
+      }, {
+        food:                 food,
+        component_type:       zinc,
+        value:                clean_value_string(row[12])
+      }, {
+        food:                 food,
+        component_type:       selenium,
+        value:                clean_value_string(row[13])
+      }, {
+        food:                 food,
+        component_type:       iode,
+        value:                clean_value_string(row[14])
+      }, {
+        food:                 food,
+        component_type:       proteines,
+        value:                clean_value_string(row[15])
+      }, {
+        food:                 food,
+        component_type:       proteines_brutes,
+        value:                clean_value_string(row[16])
+      }, {
+        food:                 food,
+        component_type:       glucides,
+        value:                clean_value_string(row[17])
+      }, {
+        food:                 food,
+        component_type:       sucres,
+        value:                clean_value_string(row[18])
+      }, {
+        food:                 food,
+        component_type:       energie_kj,
+        value:                clean_value_string(row[19])
+      }, {
+        food:                 food,
+        component_type:       energie_kcal,
+        value:                clean_value_string(row[20])
+      }, {
+        food:                 food,
+        component_type:       amidon,
+        value:                clean_value_string(row[21])
+      }, {
+        food:                 food,
+        component_type:       energie_dummy1,
+        value:                clean_value_string(row[22])
+      }, {
+        food:                 food,
+        component_type:       energie_dummy2,
+        value:                clean_value_string(row[23])
+      }, {
+        food:                 food,
+        component_type:       polyols,
+        value:                clean_value_string(row[24])
+      }, {
+        food:                 food,
+        component_type:       fibres,
+        value:                clean_value_string(row[25])
+      }, {
+        food:                 food,
+        component_type:       eau,
+        value:                clean_value_string(row[26])
+      }, {
+        food:                 food,
+        component_type:       lipides,
+        value:                clean_value_string(row[27])
+      }, {
+        food:                 food,
+        component_type:       ag_satures,
+        value:                clean_value_string(row[28])
+      }, {
+        food:                 food,
+        component_type:       ag_monoinsatures,
+        value:                clean_value_string(row[29])
+      }, {
+        food:                 food,
+        component_type:       ag_polyinsatures,
+        value:                clean_value_string(row[30])
+      }, {
+        food:                 food,
+        component_type:       ag_butyrique,
+        value:                clean_value_string(row[31])
+      }, {
+        food:                 food,
+        component_type:       ag_caproique,
+        value:                clean_value_string(row[32])
+      }, {
+        food:                 food,
+        component_type:       ag_caprylique,
+        value:                clean_value_string(row[33])
+      }, {
+        food:                 food,
+        component_type:       ag_caprique,
+        value:                clean_value_string(row[34])
+      }, {
+        food:                 food,
+        component_type:       ag_laurique,
+        value:                clean_value_string(row[35])
+      }, {
+        food:                 food,
+        component_type:       ag_myristique,
+        value:                clean_value_string(row[36])
+      }, {
+        food:                 food,
+        component_type:       ag_palmitique,
+        value:                clean_value_string(row[37])
+      }, {
+        food:                 food,
+        component_type:       ag_stearique,
+        value:                clean_value_string(row[38])
+      }, {
+        food:                 food,
+        component_type:       ag_oleique,
+        value:                clean_value_string(row[39])
+      }, {
+        food:                 food,
+        component_type:       ag_linoleique,
+        value:                clean_value_string(row[40])
+      }, {
+        food:                 food,
+        component_type:       ag_alpha_linolenique,
+        value:                clean_value_string(row[41])
+      }, {
+        food:                 food,
+        component_type:       ag_arachidonique,
+        value:                clean_value_string(row[42])
+      }, {
+        food:                 food,
+        component_type:       ag_epa,
+        value:                clean_value_string(row[43])
+      }, {
+        food:                 food,
+        component_type:       ag_dha,
+        value:                clean_value_string(row[44])
+      }, {
+        food:                 food,
+        component_type:       ag_retinol,
+        value:                clean_value_string(row[45])
+      }, {
+        food:                 food,
+        component_type:       ag_beta_carotene,
+        value:                clean_value_string(row[46])
+      }, {
+        food:                 food,
+        component_type:       vitamine_d,
+        value:                clean_value_string(row[47])
+      }, {
+        food:                 food,
+        component_type:       vitamine_e,
+        value:                clean_value_string(row[48])
+      }, {
+        food:                 food,
+        component_type:       vitamine_k1,
+        value:                clean_value_string(row[49])
+      }, {
+        food:                 food,
+        component_type:       vitamine_k2,
+        value:                clean_value_string(row[50])
+      }, {
+        food:                 food,
+        component_type:       vitamine_c,
+        value:                clean_value_string(row[51])
+      }, {
+        food:                 food,
+        component_type:       vitamine_b1,
+        value:                clean_value_string(row[52])
+      }, {
+        food:                 food,
+        component_type:       vitamine_b2,
+        value:                clean_value_string(row[53])
+      }, {
+        food:                 food,
+        component_type:       vitamine_b3,
+        value:                clean_value_string(row[54])
+      }, {
+        food:                 food,
+        component_type:       vitamine_b5,
+        value:                clean_value_string(row[55])
+      }, {
+        food:                 food,
+        component_type:       vitamine_b6,
+        value:                clean_value_string(row[56])
+      }, {
+        food:                 food,
+        component_type:       vitamine_b12,
+        value:                clean_value_string(row[57])
+      }, {
+        food:                 food,
+        component_type:       vitamine_b9,
+        value:                clean_value_string(row[58])
+      }, {
+        food:                 food,
+        component_type:       alcool,
+        value:                clean_value_string(row[59])
+      }, {
+        food:                 food,
+        component_type:       acides_organiques,
+        value:                clean_value_string(row[60])
+      }, {
+        food:                 food,
+        component_type:       cholesterol,
+        value:                clean_value_string(row[61])
+      }]
+    )
   end
 end
 
@@ -650,7 +601,7 @@ dessert = CourseType.find_by_name(name='Dessert') || CourseType.create({
 unless Constraint.first
   puts 'Creating Diets with their Courses and Constraints...'
   diet = Diet.create!({
-    user:                   hickscorp,
+    user:                   admin,
     name:                   'Régime Équilibre'
   })
   # Sample course: Entrée
@@ -745,7 +696,7 @@ unless Plate.first
   puts    'Creating Meals with their Plates and Ingredients...'
   diet    = Diet.first
   meal1   = Meal.first || Meal.create!({
-    user:                   hickscorp,
+    user:                   admin,
     diet:                   diet,
     name:                   'Repas Equilibré'
   })
